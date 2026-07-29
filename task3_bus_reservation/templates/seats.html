@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select a Seat</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; }
+    h1 { color: #0b3d91; font-size: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 60px); gap: 10px; margin: 20px 0; }
+    .seat { padding: 12px 0; text-align: center; border-radius: 6px; font-size: 13px; cursor: pointer; border: 1px solid #ccc; background: #e6ffed; }
+    .seat.booked { background: #eee; color: #999; cursor: not-allowed; text-decoration: line-through; }
+    .seat.selected { outline: 3px solid #0b3d91; }
+    dialog { border: none; border-radius: 8px; padding: 20px; width: 280px; }
+    input { display: block; width: 100%; margin: 8px 0; padding: 8px; }
+    button { background:#0b3d91; color:#fff; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; }
+    .flash { padding: 10px; border-radius: 4px; margin: 10px 0; }
+    .flash.success { background: #e6ffed; border: 1px solid #34a853; }
+    .flash.error { background: #ffe6e6; border: 1px solid #d93025; }
+  </style>
+</head>
+<body>
+  <a href="/">&larr; Back to search</a>
+  <h1>{{ bus.operator }} — {{ bus.source }} → {{ bus.destination }} ({{ bus.journey_date }} {{ bus.departure_time }})</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  <p>Fare: ₹{{ bus.fare }} · Green = available, grey = booked. Click a seat to book it.</p>
+
+  <div class="grid">
+    {% for seat in seats %}
+      {% if seat.is_booked %}
+        <div class="seat booked">{{ seat.seat_number }}</div>
+      {% else %}
+        <div class="seat" onclick="openDialog({{ seat.id }}, '{{ seat.seat_number }}')">{{ seat.seat_number }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <dialog id="bookDialog">
+    <form method="post" id="bookForm" action="">
+      <h3>Book seat <span id="seatLabel"></span></h3>
+      <input type="text" name="passenger_name" placeholder="Full name" required>
+      <input type="email" name="passenger_email" placeholder="Email" required>
+      <button type="submit">Confirm Booking</button>
+      <button type="button" onclick="document.getElementById('bookDialog').close()" style="background:#999;">Cancel</button>
+    </form>
+  </dialog>
+
+  <script>
+    function openDialog(seatId, label) {
+      document.getElementById('seatLabel').textContent = label;
+      document.getElementById('bookForm').action = '/book/' + seatId;
+      document.getElementById('bookDialog').showModal();
+    }
+  </script>
+</body>
+</html>

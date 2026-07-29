@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cloud File Storage System</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 16px; }
+    h1 { color: #0b3d91; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+    .flash { padding: 10px; border-radius: 4px; margin: 10px 0; }
+    .flash.success { background: #e6ffed; border: 1px solid #34a853; }
+    .flash.error { background: #ffe6e6; border: 1px solid #d93025; }
+    form.upload-form { margin-top: 20px; padding: 16px; border: 2px dashed #ccc; border-radius: 8px; }
+    button { cursor: pointer; padding: 6px 12px; border-radius: 4px; border: none; }
+    .btn-download { background: #0b3d91; color: white; }
+    .btn-delete { background: #d93025; color: white; }
+    .btn-share { background: #34a853; color: white; }
+  </style>
+</head>
+<body>
+  <h1>☁️ Cloud File Storage System</h1>
+  <p>Bucket: <code>{{ bucket }}</code></p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form class="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <table>
+    <tr><th>File</th><th>Size (KB)</th><th>Uploaded</th><th>Actions</th></tr>
+    {% for f in files %}
+    <tr>
+      <td>{{ f.key }}</td>
+      <td>{{ f.size_kb }}</td>
+      <td>{{ f.last_modified }}</td>
+      <td>
+        <a href="/download/{{ f.key }}"><button class="btn-download">Download</button></a>
+        <a href="/share/{{ f.key }}"><button class="btn-share">Share Link</button></a>
+        <form style="display:inline" action="/delete/{{ f.key }}" method="post" onsubmit="return confirm('Delete this file?')">
+          <button class="btn-delete" type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No files uploaded yet.</td></tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

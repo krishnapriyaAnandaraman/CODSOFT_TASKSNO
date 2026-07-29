@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bus Ticket Reservation</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 16px; }
+    h1 { color: #0b3d91; }
+    .search-form { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-form input { padding: 8px; }
+    .bus-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .flash { padding: 10px; border-radius: 4px; margin: 10px 0; }
+    .flash.success { background: #e6ffed; border: 1px solid #34a853; }
+    .flash.error { background: #ffe6e6; border: 1px solid #d93025; }
+    a.link-btn, button { background:#0b3d91; color:#fff; border:none; padding:8px 14px; border-radius:4px; text-decoration:none; cursor:pointer; }
+    nav a { margin-right: 16px; }
+  </style>
+</head>
+<body>
+  <nav><a href="/">Search</a><a href="/my-bookings">My Bookings</a></nav>
+  <h1>🚌 Bus Ticket Reservation</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form class="search-form" method="get" action="/">
+    <input type="text" name="source" placeholder="From (e.g. Chennai)" value="{{ source }}">
+    <input type="text" name="destination" placeholder="To (e.g. Bangalore)" value="{{ destination }}">
+    <input type="date" name="date" value="{{ date }}">
+    <button type="submit">Search</button>
+  </form>
+
+  {% for bus in buses %}
+  <div class="bus-card">
+    <div>
+      <strong>{{ bus.operator }}</strong><br>
+      {{ bus.source }} → {{ bus.destination }} | {{ bus.journey_date }} at {{ bus.departure_time }}<br>
+      ₹{{ bus.fare }} · {{ bus.available_seats }} / {{ bus.total_seats }} seats available
+    </div>
+    <a class="link-btn" href="/bus/{{ bus.id }}">Select Seat</a>
+  </div>
+  {% else %}
+  <p>No buses found — try clearing the filters or search "Chennai" → "Bangalore".</p>
+  {% endfor %}
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cloud Data Deduplication System</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 850px; margin: 40px auto; padding: 0 16px; }
+    h1 { color: #0b3d91; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
+    .flash { padding: 10px; border-radius: 4px; margin: 10px 0; }
+    .flash.success { background: #e6ffed; border: 1px solid #34a853; }
+    .flash.error { background: #ffe6e6; border: 1px solid #d93025; }
+    form.upload-form { margin-top: 20px; padding: 16px; border: 2px dashed #ccc; border-radius: 8px; }
+    button { cursor: pointer; padding: 6px 12px; border-radius: 4px; border: none; background:#0b3d91; color:#fff; }
+    code { font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>🧬 Cloud Data Deduplication System</h1>
+  <p>Bucket: <code>{{ bucket }}</code> — try uploading the same file twice to see dedup in action.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form class="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Upload &amp; Check for Duplicates</button>
+  </form>
+
+  <table>
+    <tr><th>File</th><th>SHA-256 (short)</th><th>Size (bytes)</th><th>Uploaded</th></tr>
+    {% for f in files %}
+    <tr>
+      <td>{{ f.original_name }}</td>
+      <td><code>{{ f.file_hash[:16] }}…</code></td>
+      <td>{{ f.size_bytes }}</td>
+      <td>{{ f.uploaded_at }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No unique files stored yet.</td></tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
